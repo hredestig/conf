@@ -1,0 +1,50 @@
+library(utils)
+library(grDevices)
+#Sys.setenv("http_proxy"="http://proxy-bcs.bayerbbs.net:8080")
+
+options(width=90)
+.dp <- function(x) Sys.setenv("DISPLAY"=paste("localhost:", x, ".0", sep=""))
+.bc <- function(x) {
+  source('http://www.bioconductor.org/biocLite.R')
+  biocLite(x)
+}
+
+options(repos="http://www.freestatistics.org/cran")
+options(pdfviewer="/usr/bin/xpdf")
+options(digits=5)
+X11.options(type="nbcairo")
+
+if(interactive()) {
+  ## suppressMessages(require(BCS.Base))
+  suppressMessages(require(devtools))
+  suppressMessages(require(gridExtra))
+  suppressMessages(require(ggplot2))
+  suppressMessages(require(plyr))
+}
+  
+.d <- 'BCS.rcsnp2'
+.d <- 'BCS.Phenotyping'
+.reinst <- function() {
+  system(paste('rm -rf ', .libPaths()[1], '/00LOCK-', .d, sep=''))
+  document(.d)
+  install(.d)
+  system(paste('rm -rf ', .libPaths()[1], '/00LOCK-', .d, sep=''))
+}
+
+.install_reports <- function() {
+  dest <- file.path(.libPaths()[1], .d, 'reports')
+  src <- file.path(source('~/.Rpackages')[['value']][[.d]], 'inst', 'reports')
+  vapply(list.files(src, pattern='.R[md]*$'),
+         function(r) file.copy(file.path(src, r), dest, overwrite=TRUE),logical(1))
+}
+       
+
+.install_configs <- function() {
+  dest <- file.path(.libPaths()[1], .d, 'configs')
+  src <- file.path(source('~/.Rpackages')[['value']][[.d]], 'inst', 'configs')
+  vapply(list.files(src, pattern='.rda*$'),
+         function(r) file.copy(file.path(src, r), dest, overwrite=TRUE),logical(1))
+}
+
+.delete_most_functions <- function() 
+  rm(list=Filter(function(x) is.function(get(x)), ls()), envir=.GlobalEnv, inherits=TRUE)

@@ -1,0 +1,549 @@
+;-*- lisp -*-
+
+(global-set-key [delete] 'delete-char)
+(global-set-key [kp-delete] 'delete-char)
+(global-unset-key "\e\e\e")
+
+(setq cua-enable-cua-keys nil)
+(setq cua-toggle-set-mark nil)
+(cua-mode)
+
+(global-set-key "\C-ci" 'cua-set-rectangle-mark)
+(global-set-key [(shift delete)] 'clipboard-kill-region)
+(global-set-key [(control insert)] 'clipboard-kill-ring-save)
+(global-set-key [(shift insert)] 'clipboard-yank)
+
+(setq-default ring-bell-function (defun fun ()))
+(blink-cursor-mode 0)
+
+;; markdown
+(autoload 'markdown-mode "markdown-mode.el"
+  "Major mode for editing Markdown files" t)
+(setq auto-mode-alist
+	  (cons '("\\.Rmd" . markdown-mode) auto-mode-alist))
+(setq auto-mode-alist
+	  (cons '("\\.md" . markdown-mode) auto-mode-alist))
+
+;; emacs client / server
+(if (and (boundp 'server-process)
+     (memq (process-status server-process) '(connect listen open run)))
+    (progn 
+      (server-start)
+      ;; make client start new frame
+      (add-hook 'server-switch-hook
+		(lambda nil
+		  (let ((server-buf (current-buffer)))
+		    (bury-buffer)
+		    (switch-to-buffer-other-frame server-buf))))
+      ;; make client delete the frame on exit
+      (add-hook 'server-done-hook 'delete-frame)
+      ;; ...and make it kill any created buffers
+      (add-hook 'server-done-hook (lambda nil (kill-buffer nil)))))
+
+;; turn on font-lock mode
+(global-font-lock-mode t)
+;; enable visual feedback on selections
+(setq-default transient-mark-mode t)
+
+;; stop at the end of the file, not just add lines
+(setq next-line-add-newlines nil)
+(setq kill-whole-line 1)
+(setq comment-column 50)
+;; loose the stupid menu/toolbars
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+
+;; auctex
+(add-to-list 'load-path "/home/gbfjc/lib/lisp/auctex")
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq reftex-plug-into-AUCTeX t)
+
+;; make eshell use ansi visual mode after these commands
+(eval-after-load "em-term"
+  '(add-to-list 'eshell-visual-commands "vim"))
+(eval-after-load "em-term"
+  '(add-to-list 'eshell-visual-commands "zsh"))
+(eval-after-load "em-term"
+  '(add-to-list 'eshell-visual-commands "perldoc"))
+(eval-after-load "em-term"
+  '(add-to-list 'eshell-visual-commands "mc"))
+(eval-after-load "em-term"
+  '(add-to-list 'eshell-visual-commands "bash"))
+(eval-after-load "em-term"
+  '(add-to-list 'eshell-visual-commands "lynx"))
+
+(setq inhibit-splash-screen t)
+
+(add-hook 'python-mode-hook
+	  (lambda ()
+	    ;(auto-complete-mode)
+	    (defun python-insert-quotes ()
+	      (interactive)
+	      (insert "\"\"")
+	      (backward-char))
+	    (defun python-insert-single-quotes ()
+	      (interactive)
+	      (insert "\'\'")
+	      (backward-char))
+	    (local-set-key "\C-c\"" 'python-insert-quotes)
+	    (local-set-key "\C-c\'" 'python-insert-single-quotes)
+	    (defun python-extras-run-line ()
+	      "load the current line including the indentation"
+	      (interactive)
+	      (save-excursion
+		(beginning-of-line)
+		(set 'beg (point))
+		(end-of-line)
+		(set 'end (point))
+		(copy-region-as-kill beg end)
+		(set-buffer "*Python*")
+		(end-of-buffer)
+		(yank)
+		(end-of-buffer)
+		(comint-send-input))
+	      (next-line 1))
+
+	    (defun python-extras-run-line-no-indent ()
+	      "load the current line minus the indentation"
+	      (interactive)
+	      (save-excursion
+		(beginning-of-line)
+		(search-forward-regexp "[^ ]")
+		(set 'beg (- (point) 1))
+		(end-of-line)
+		(set 'end (point))
+		(copy-region-as-kill beg end)
+		(set-buffer "*Python*")
+		(end-of-buffer)
+		(yank)
+		(end-of-buffer)
+		(comint-send-input))
+	      (next-line 1))
+	    (local-set-key "\C-c\C-e" 'python-extras-run-line)
+	    (local-set-key "\C-c\C-g" 'python-extras-run-line-no-indent)
+	    ))
+
+(when window-system
+  (mwheel-install)
+  (set-selection-coding-system 'compound-text-with-extensions))
+
+(setq-default inferior-R-program-name "/tools/bioinfo/app/R-2.14.2/bin/R")
+(setq prefix "/home/gbfjc")
+
+(add-to-list 'load-path (concat prefix "/lib/lisp/"))
+(add-to-list 'load-path (concat prefix "/lib/lisp/ess-svn-rep/lisp"))
+(add-to-list 'load-path "/home/gbfjc/lib/lisp/auctex")
+
+;; ESS
+(load "ess-site.el")
+(require 'ess-site)
+(setq-default inferior-R-args "--no-restore-history --no-save --no-restore ")
+(setq ess-eval-visibly-p nil)
+(setq comint-scroll-to-bottom-on-input t)
+(setq comint-scroll-to-bottom-on-output t)
+(setq comint-move-point-for-output t)
+(setq comint-scroll-show-maximum-output t)
+(ess-toggle-underscore nil)
+(defun ess-insert-S-assign-henning ()
+  (interactive)
+  (let ((assign-len (length ess-S-assign)))
+      (if (and
+	   (>= (point) (+ assign-len (point-min)))
+	   (save-excursion
+	     (backward-char assign-len)
+	     (looking-at ess-S-assign)))
+	  (progn
+	    (delete-char (- assign-len))
+	    (insert " < "))
+	(delete-horizontal-space)
+	(insert ess-S-assign))))
+(defun ess-smart-lt ()
+  (interactive)
+  (if (or (looking-at ess-S-assign)
+		  (ess-inside-string-or-comment-p (point)))
+      (insert "<")
+    (ess-insert-S-assign-henning)))
+;(remove-hook 'ess-mode-hook (first ess-mode-hook))
+(setq ess-use-tracebug t)
+(setq ess-roxy-str "#'")
+(add-hook 'ess-mode-hook (lambda ()
+						   (highlight-lines-matching-regexp ".\\{95\\}" "shadow")
+						   (local-set-key (kbd "<") 'ess-smart-lt)))
+(add-hook 'inferior-ess-mode-hook (lambda ()
+									(local-set-key (kbd "<") 'ess-smart-lt)))
+
+
+;; Org-mode settings
+(setq
+ load-path
+ (cons (concat prefix "/lib/lisp/org-mode/contrib/lisp") load-path))
+(setq
+ load-path
+ (cons (concat prefix "/lib/lisp/org-mode/lisp/") load-path))
+(load-file "/home/gbfjc/lib/lisp/org-exp-bibtex.el")
+(require 'org-install)
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "STARTED(s!)" "WAIT(w@/!)" "|" "DONE(d!)" 
+				  "CANCELED(c@)"  "DELEGATED(e@)")))
+(setq org-export-html-xml-declaration
+	  '(("html" . "<!-- <xml version=\"1.0\" encoding=\"utf-8\"> -->")))
+(setq org-export-with-LaTeX-fragments t)
+(setq org-hide-block-startup t)
+(setq org-hide-leading-stars nil)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
+(require 'remember)
+(org-remember-insinuate)
+(setq org-directory "~/notes")
+(setq org-default-notes-file (concat org-directory "/notes.org"))
+(define-key global-map "\C-cr" 'org-remember)
+(add-hook 'org-mode-hook (lambda ()
+			   (visual-line-mode t)
+			   (abbrev-mode)
+			   (setq ess-dialect "R")
+			   (font-lock-add-keywords nil
+						   '(("\\\\cite.\\{0,1\\}{[^}]*}" .
+						      font-lock-keyword-face)))
+			   (font-lock-add-keywords nil
+						   '(("\\\\ref.\\{0,1\\}{[^}]*}" .
+						      font-lock-keyword-face)))
+
+			   (load-file (concat prefix "/lib/lisp/2org.el"))
+			   (local-set-key "\C-cc" 'org-babel-new-hash-no-eval)
+			   (local-set-key "\C-c\C-z" 'ess-switch-to-end-of-ESS)
+			   (local-set-key "\C-c\C-g" 'org-set-tags)))
+
+
+;; yasnippet
+(add-to-list 'load-path
+	     (concat prefix "/lib/lisp/yasnippet-0.6.1c"))
+(require 'yasnippet)
+(yas/initialize)
+(yas/load-directory (concat prefix "/lib/lisp/yasnippet-0.6.1c/snippets"))
+
+;; elscreen
+(load-file (concat prefix "/lib/lisp/elscreen.el"))
+(load "elscreen" "ElScreen" t)
+;; (defun elscreen-frame-title-update ()
+;;   (when (elscreen-screen-modified-p 'elscreen-frame-title-update)
+;;     (let* ((screen-list (sort (elscreen-get-screen-list) '<))
+;; 	   (screen-to-name-alist (elscreen-get-screen-to-name-alist))
+;; 	   (title (mapconcat
+;; 		   (lambda (screen)
+;; 		     (format "%d%s %s"
+;; 			     screen (elscreen-status-label screen)
+;; 			     (get-alist screen screen-to-name-alist)))
+;; 		   screen-list " ")))
+;;       (if (fboundp 'set-frame-name)
+;; 	  (set-frame-name title)
+;; 	(setq frame-title-format title)))))
+(setq elscreen-display-tab nil)
+;; (eval-after-load "elscreen"
+;;   '(add-hook 'elscreen-screen-update-hook 'elscreen-frame-title-update))
+
+;; ess-rdoc
+(defun ess-load-all () 
+  (interactive)
+  (ess-command "print(suppressWarnings(load_all()))\n"))
+
+
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq reftex-plug-into-AUCTeX t)
+
+;; dired
+(setq dired-recursive-deletes 'top)
+(setq dired-recursive-copies 'top)
+(defun dired-do-shell-command-in-background (command)
+  "In dired, do shell command in background on the file or directory named on this line."
+  (interactive
+   (list (dired-read-shell-command (concat "& on " "%s: ") nil (list (dired-get-filename)))))
+  (call-process command nil 0 nil (dired-get-filename)))
+(setq dired-listing-switches "-lhB")
+(require 'dired-x nil t)		;dired-x
+(add-hook 'dired-mode-hook
+	  (lambda ()
+	    ;; Set dired-x buffer-local variables here.  For example:
+	    ;; (setq dired-omit-files-p t)
+	    (setq dired-guess-shell-alist-user
+		  (list
+		   (list "\\.jpg$" "display")
+		   (list "\\.jpeg$" "display")
+		   (list "\\.eps$" "display")
+		   (list "\\.png$" "display")
+		   (list "\\.gif$" "display")
+		   (list "\\.pdf$" "xpdf")
+		   (list "\\.ps$" "evince")
+		   (list "\\.xls$" "gnumeric")
+		   (list "\\.ods$" "oocalc")
+		   (list "\\.ppt$" "ooimpress")
+		   (list "\\.gnumeric$" "gnumeric")
+		   (list "\\.doc$" "oowriter")
+		   (list "\\.odt$" "openoffice.org2.3")
+		   ))
+
+	    (load "dired-x")
+ 	    (local-set-key "\M-o" 'other-window)
+	    (local-set-key "&" 'dired-do-shell-command-in-background)
+	    ))
+(define-key dired-mode-map "k" 'dired-kill-subdir)
+
+;; dont use windows like selection modes
+(delete-selection-mode 0)
+;; hide passwords
+(add-hook 'comint-output-filter-functions
+	  'comint-watch-for-password-prompt)
+(add-hook 'TeX-mode-hook 'turn-on-reftex)
+(put 'set-goal-column 'disabled nil)
+(setq truncate-partial-width-windows 80)
+(setq dw-forward-words 2)
+(global-set-key "\C-co" 'other-window)
+(global-set-key "\M-o" 'other-window)
+(global-set-key "\M-n" 'toggle-truncate-lines)
+(global-set-key [(f7)] 'replace-string)
+(global-set-key "\C-cb" 'org-iswitchb)
+(global-set-key "\C-cg" 'yas/expand)
+(global-set-key [(f8)] 'ess-revert-wisely)
+(setq tex-dvi-view-command "xdvi -s 5 *")
+
+;; latex
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq reftex-plug-into-AUCTeX t)
+;; ispell ignore
+(setq ispell-tex-skip-alists
+	  (list
+	   (append
+		(car ispell-tex-skip-alists) ;tell ispell to ignore content of this:
+		'(("\\\\cite"            ispell-tex-arg-end)
+		  ("\\\\citep"            ispell-tex-arg-end)
+		  ("\\\\nocite"          ispell-tex-arg-end)
+		  ("\\\\includegraphics" ispell-tex-arg-end)
+		  ("\\\\bibliography"    ispell-tex-arg-end)
+		  ("\\\\ref"             ispell-tex-arg-end)
+		  ("\\\\web"             ispell-tex-arg-end) ;personal
+		  ("\\\\code"            ispell-tex-arg-end) ;personal
+		  ("\\\\label"           ispell-tex-arg-end)))
+	   (cadr ispell-tex-skip-alists)))
+
+;; publish to prod
+;; (defun org-publish-file (&optional prod-instead-of-dev) 
+;;   "publish the current file in suitable location using simple rsync"
+;;   (start-process  "rsync --verbose --max-size 30M --progress --stats --recursive --delete --exclude "*~" . /data/prod/Projects/Arabidopsis/DataAnalysis/promoter_y1h/V1/"
+
+(add-hook 'r-mode-hook 'my-keys)
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(LaTeX-section-hook (quote (LaTeX-section-heading LaTeX-section-title LaTeX-section-section)))
+ '(auto-compression-mode t nil (jka-compr))
+ '(c-basic-offset 2)
+ '(case-fold-search t)
+ '(current-language-environment "UTF-8")
+ '(default-input-method "rfc1345")
+ '(elscreen-last-message "You cannot escape from screen 0!" t)
+ '(elscreen-tab-display-control nil)
+ '(ess-r-args-electric-paren t)
+ '(ess-roxy-hide-show-p t)
+ '(ess-roxy-start-hidden-p t)
+ '(ess-roxy-str "#'")
+ '(ess-roxy-template-alist (list (cons "description" "") (cons "param" "") (cons "return" "") (cons "export" "") (cons "author" ess-user-full-name)))
+ '(global-font-lock-mode t nil (font-lock))
+ '(highline-face (quote secondary-selection))
+ '(highline-ignore-regexp "Faces\\|Colors\\|Minibuf\\|rTran.Rt\\|\\*.+")
+ '(iswitchb-default-method (quote samewindow))
+ '(iswitchb-mode t)
+ '(jira-url "http://vmbeap.be.bayercropscience:8080/jira/rpc/xmlrpc")
+ '(org-agenda-dim-blocked-tasks t)
+ '(org-agenda-files (quote ("~/workspace/personal/Projects/Canola/phytotonics-nanocage/doc/nanocage-pilot.org" "~/workspace/personal/notes/overview-objectives.org" "~/notes/notes.org" "~/workspace/personal/Projects/Arabidopsis/invitro_phenotyping/doc/re-analysis.org" "~/.org-jira/RPHENOP.org" "~/workspace/personal/Projects/Canola/phytotonics-mace/doc/phytotonics-mace.org" "~/workspace/personal/Projects/Arabidopsis/invitro_phenotyping/doc/compiled.org" "~/workspace/personal/Projects/Wheat/wheat-fewgenes-expression/doc/wheat-fewgenes-expression.org" "~/workspace/personal/Projects/Canola/transcriptome/doc/evaluation.org" "~/workspace/personal/Projects/Canola/transcriptome/doc/transcriptome.org" "~/workspace/personal/Projects/Arabidopsis/invitro_phenotyping/doc/invitro_phenotyping.org" "~/workspace/personal/Projects/Rice/parents-hybrids-gx/doc/parents-hybrids-gx.org" "~/workspace/personal/Rpackages/BCS.rcsnp2/doc/rcsnp2.org" "~/proj/049rice/heterosis-cor/doc/het-rehyb.org" "/data/run/Projects/Arabidopsis/BIO1-032/transl_crop_leads/doc/transl.org" "/data/run/Projects/Arabidopsis/BIO1-032/nativecold/doc/nativecold.org" "~/proj/032stress/reverse/doc/validate-modules.org" "~/proj/049rice/lnt/doc/lnt.org" "~/proj/049rice/snp-backbone/doc/snp-backbone.org" "~/proj/049rice/doc/rice.org" "/home/gbfjc/proj/032stress/doc/stress.org" "/home/gbfjc/proj/049rice/doc/rice.org")))
+ '(org-agenda-include-diary t)
+ '(org-babel-load-languages (quote ((emacs-lisp . t) (perl . t) (python . t) (R . t) (sh . t))))
+ '(org-confirm-babel-evaluate nil)
+ '(org-default-notes-file "~/notes/notes.org")
+ '(org-directory "~/notes")
+ '(org-empty-line-terminates-plain-lists t)
+ '(org-enforce-todo-dependencies t)
+ '(org-export-babel-evaluate nil)
+ '(org-file-apps (quote ((auto-mode . emacs) ("\\.mm\\'" . default) ("\\.x?html?\\'" . default) ("\\.pdf\\'" . "xpdf %s") ("\\.png\\'" . "display %s"))))
+ '(org-from-is-user-regexp "\\<Henning Redestig\\>")
+ '(org-hide-block-startup t)
+ '(org-link-file-path-type (quote relative))
+ '(org-log-done nil)
+ '(org-src-window-setup (quote current-window))
+ '(org-tag-alist nil)
+ '(org-todo-keywords (quote ((sequence "TODO(t)" "STARTED(s!)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)"))))
+ '(orgtbl-optimized nil)
+ '(reftex-default-bibliography (quote (concat prefix "gbfjc/litt/references.bib")))
+ '(reftex-plug-into-AUCTeX t t)
+ '(rst-adornment-faces-alist (quote ((t . font-lock-keyword-face) (nil . font-lock-keyword-face) (1 . rst-level-6-face) (2 . rst-level-6-face) (3 . rst-level-6-face) (4 . rst-level-6-face) (5 . rst-level-6-face) (6 . rst-level-6-face))))
+ '(show-paren-mode t nil (paren))
+ '(sql-sqlite-program "sqlite3")
+ '(tab-width 4)
+ '(transient-mark-mode t)
+ '(vc-follow-symlinks t))
+
+;; jira
+(add-to-list 'load-path (concat prefix "/lib/lisp/org-jira-master"))
+(setq jiralib-url "http://vm-alm-prod-1.be.bayercropscience:8080") 
+(require 'org-jira) 
+
+
+(ispell-change-dictionary "english")
+
+;; i dont need keyboard-escape-quit
+(put 'keyboard-escape-quit 'disabled
+     "I fucking HATE that command!.\n")
+(global-set-key "\C-x\C-b" 'switch-to-buffer)
+
+;; markerpen
+(load-file (concat prefix "/lib/lisp/markerpen.el"))
+(require 'markerpen)
+(global-set-key (kbd "C-c m") 'markerpen-mark-region)
+(global-set-key (kbd "C-c M") 'markerpen-clear-all-marks)
+
+(load-file (concat prefix "/lib/lisp/cd-colors.el"))
+
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(default ((t (:background nil :foreground "gainsboro"))))
+ '(bm-fringe-face ((t (:foreground "#ff8e43"))))
+ '(cd-fixme-face ((t (:background "#670000" :foreground "#ffffff" :bold t :box (:line-width 1 :style released-button)))) t)
+ '(cd-org-cancelled-kwd-face ((t (:background "#777700" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(cd-org-delegated-kwd-face ((t (:background "#BB9900" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(cd-org-done-kwd-face ((t (:background "#004400" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(cd-org-project-kwd-face ((t (:background "#774488" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(cd-org-someday-kwd-face ((t (:background "#444444" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(cd-org-started-kwd-face ((t (:background "#EE6600" :foreground "white" (\` @box)))) t)
+ '(cd-org-todo-kwd-face ((t (:background "#BB0000" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(cd-org-waiting-kwd-face ((t (:background "#EE9900" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(compilation-error ((t (:background "sienna4" :bold t))))
+ '(compilation-info ((t (:inherit (quote font-lock-string-face) :bold t))))
+ '(compilation-line-number ((t (:foreground "#FF6666" :bold t))))
+ '(completion-dynamic-face ((t (:inherit (\` match)))))
+ '(cursor ((t (:background "#77AA99" :foreground "black"))))
+ '(diff-added ((t (:foreground "#d7ffaf"))))
+ '(diff-changed ((t (:foreground "#ffc28d"))))
+ '(diff-context ((t (:foreground "#888888"))))
+ '(diff-indicator-added ((t (:background "#d7ffaf" :foreground "#000000"))))
+ '(diff-indicator-chnaged ((t (:background "#ffc28d" :foreground "#000000"))))
+ '(diff-indicator-removed ((t (:background "#ff9999" :foreground "#000000"))))
+ '(diff-removed ((t (:foreground "#ff9999"))))
+ '(ecb-default-highlight-face ((t (:background "#A5F26E" :foreground "#000000"))))
+ '(elscreen-tab-background-face ((t (:background "#787878" :box (:line-width 1 :style released-button)))))
+ '(elscreen-tab-current-screen-face ((t (:background "#969696" :foreground "#000000" :height 1.1 :inherit variable-pitch))))
+ '(elscreen-tab-other-screen-face ((t (:background "#787878" :foreground "#444444" :height 1.1 :inherit variable-pitch))))
+ '(erb-comment-delim-face ((t (:foreground "#B150E7" :background "grey15"))))
+ '(erb-comment-face ((t (:italic t :foreground "#B150E7" :background "grey15"))))
+ '(erb-delim-face ((t (:foreground "#FFAEEA" :background "grey15"))))
+ '(erb-face ((t (:background "grey15"))))
+ '(erb-out-delim-face ((t (:foreground "#FFAEEA" :background "grey15"))))
+ '(erb-out-face ((t (:background "grey15"))))
+ '(erc-input-face ((t (:foreground "#A6E2DC"))))
+ '(erc-my-nick-face ((t (:foreground "#888888" :bold t))))
+ '(erc-notice-face ((t (:foreground "#444444"))))
+ '(erc-prompt-face ((t (:background "#223c63" :foreground "white" :box (:line-width 1 :style released-button)))))
+ '(erc-timestamp-face ((t (:foreground "#2d412b"))))
+ '(flymake-errline ((t :underline "red")))
+ '(flymake-warnline ((t :underline "green")))
+ '(flyspell-duplicate ((t :underline "yellow")))
+ '(flyspell-incorrect ((t :underline "magenta")))
+ '(font-lock-builtin-face ((t (:foreground "#59ACC2"))))
+ '(font-lock-comment-delimiter-face ((t (:foreground "#888888"))))
+ '(font-lock-comment-face ((t (:italic t :foreground "#229988"))))
+ '(font-lock-constant-face ((t (:foreground "#6BCFF7"))))
+ '(font-lock-function-name-face ((t (:bold t :foreground "#E8BF6A"))))
+ '(font-lock-keyword-face ((t (:bold t :foreground "#CC7832"))))
+ '(font-lock-preprocessor-face ((t (:background "#202020"))))
+ '(font-lock-string-face ((t (:foreground "#A5F26E"))))
+ '(font-lock-type-face ((t (:bold t :foreground "#8888ff"))))
+ '(font-lock-variable-name-face ((t (:foreground "#D0D0F3"))))
+ '(font-lock-warning-face ((t (:underline "red"))))
+ '(highlight ((t (:inherit (\` match)))))
+ '(hl-line ((t :background "#000000" :underline "#444444")))
+ '(ido-first-match ((t (:inherit (quote font-lock-string-face)))))
+ '(ido-subdir ((t (:inherit (quote font-lock-function-name-face)))))
+ '(magit-branch ((t (:foreground "#E07BE0"))))
+ '(magit-diff-add ((t (:inherit (quote diff-added)))))
+ '(magit-diff-del ((t (:inherit (quote diff-removed)))))
+ '(magit-diff-file-header ((t (:inherit (quote font-lock-constant-face)))))
+ '(magit-diff-hunk-header ((t (:inherit (quote font-lock-keyword-face)))))
+ '(magit-diff-none ((t (:inherit (quote font-lock-comment-delimiter-face)))))
+ '(magit-header ((t (:inherit (quote org-level-1)))))
+ '(magit-item-highlight ((t (:background "#000000"))))
+ '(match ((t :background "#111111")))
+ '(minibuffer-noticeable-prompt ((t (:inherit (quote font-lock-builtin-face) :bold t))))
+ '(mode-line ((t (:background "#77AA99" :foreground "black" :box (:line-width 1 :style released-button)))))
+ '(mode-line-buffer-id ((t (:background nil :foreground "black"))))
+ '(mode-line-inactive ((t (:background "#777777" :foreground "#000000" :box (:line-width 1 :style released-button)))))
+ '(modeline-mousable ((t (:background "DarkRed" :foreground "white"))))
+ '(modeline-mousable-minor-mode ((t (:background "DarkRed" :foreground "white"))))
+ '(muse-bad-link ((t (:foreground "#FF8882"))))
+ '(muse-header-1 ((t (:foreground "#D6B163" :height 1.5 :inherit variable-pitch))))
+ '(muse-header-2 ((t (:foreground "#A5F26E" :height 1.4 :inherit variable-pitch))))
+ '(muse-header-3 ((t (:foreground "#4A77DE" :height 1.3 :inherit variable-pitch))))
+ '(muse-header-4 ((t (:foreground "#529DB0" :height 1.2 :inherit variable-pitch))))
+ '(muse-header-5 ((t (:foreground "#CC7832" :height 1.1 :inherit variable-pitch))))
+ '(muse-link ((t (:foreground "#5DA8F6"))))
+ '(muse-verbatim ((t (:foreground "#B150E7"))))
+ '(nxml-attribute-local-name-face ((t (:inherit (quote font-lock-constant-face)))))
+ '(nxml-attribute-value-delimiter-face ((t (:inherit (quote font-lock-string-face)))))
+ '(nxml-attribute-value-face ((t (:inherit (quote font-lock-string-face)))))
+ '(nxml-cdata-section-content-face ((t (:inherit (quote font-lock-string-face)))))
+ '(nxml-comment-content-face ((t (:inherit (quote font-lock-comment-face)))))
+ '(nxml-comment-delimiter-face ((t (:inherit (quote font-lock-comment-face)))))
+ '(nxml-element-colon-face ((t (:bold t :foreground "#92D229"))))
+ '(nxml-element-local-name-face ((t (:inherit (quote font-lock-function-name-face)))))
+ '(nxml-element-prefix-face ((t (:bold t :foreground "#92D229"))))
+ '(nxml-entity-ref-name-face ((t (:inherit (quote font-lock-constant-face)))))
+ '(nxml-tag-delimiter-face ((t (:inherit (quote font-lock-function-name-face)))))
+ '(nxml-tag-slash-face ((t (:inherit (quote font-lock-function-name-face)))))
+ '(org-agenda-date ((t (:inherit font-lock-type-face))) t)
+ '(org-agenda-date-weekend ((t (:inherit org-agenda-date))) t)
+ '(org-checkbox ((t (:background "#777777" :foreground "white" :box (:line-width 1 :style released-button)))))
+ '(org-checkbox-statistics-done ((t (:background "#447733" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(org-checkbox-statistics-todo ((t (:background "#DD3333" :foreground "white" :box (:line-width 1 :style released-button)))) t)
+ '(org-column ((t (:background "#222222"))))
+ '(org-column-title ((t (:background "DarkGreen" :foreground "white" :box (:line-width 1 :style released-button)))))
+ '(org-date ((t (:foreground "#55DDCC"))))
+ '(org-done ((t (:background "#004400" :foreground "white" :box (:line-width 1 :style released-button)))))
+ '(org-formula ((t (:foreground "#FF7777"))))
+ '(org-hide ((t (:foreground "#191919"))))
+ '(org-level-1 ((t (:inherit outline-1))))
+ '(org-level-2 ((t (:inherit outline-2))))
+ '(org-level-3 ((t (:inherit outline-3))))
+ '(org-level-4 ((t (:inherit outline-4))))
+ '(org-level-5 ((t (:inherit outline-5))))
+ '(org-level-6 ((t (:foreground "#AAEE77"))))
+ '(org-level-7 ((t (:foreground "#88CCEE"))))
+ '(org-level-8 ((t (:foreground "#EE88FF"))))
+ '(org-link ((t (:underline t))))
+ '(org-scheduled-previously ((t (:foreground "#d74b4b"))))
+ '(org-scheduled-today ((t (:foreground "#ff6ab9" :italic t))))
+ '(org-special-keyword ((t (:foreground "#FFFF88"))))
+ '(org-table ((t (:foreground "#99DDFF"))))
+ '(org-tag ((t (:foreground "#AAAAAA"))))
+ '(org-todo ((t (:background "#BB0000" :foreground "white" :box (:line-width 1 :style released-button)))))
+ '(org-upcoming-deadline ((t (:foreground "#d6ff9c"))))
+ '(org-warning ((t (:foreground "#d74b4b" :italic t :bold t))))
+ '(outline-1 ((t (:foreground "#FFBB66" :bold t))))
+ '(outline-2 ((t (:foreground "#AAEE77" :bold t))))
+ '(outline-3 ((t (:foreground "#88CCEE" :bold t))))
+ '(outline-4 ((t (:foreground "#EE88FF" :bold t))))
+ '(outline-5 ((t (:foreground "#FFBB66" :bold nil))))
+ '(region ((t :background "#505C74")))
+ '(show-paren-match ((t (:background "#DA44FF" :foreground "#F6CCFF"))))
+ '(show-paren-mismatch ((t (:background "#DA0000" :foreground "#F6CCFF"))))
+ '(text-cursor ((t (:background "yellow" :foreground "black"))))
+ '(window-number-face ((t (:foreground "#FF7777")))))
+(put 'upcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+

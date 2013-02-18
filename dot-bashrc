@@ -1,0 +1,29 @@
+# .bashrc
+export TERM=rxvt
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific aliases and functions
+alias ".."="cd .."
+#export PS1="\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n$ "
+
+module load emacs
+module load R-2.14.2
+module load unison
+module load tablet
+module load ghmm
+module load bedtools
+module load gmap
+
+export PYTHONPATH=$PYTHONPATH:/home/gbfjc/lib/python2.6/site-packages
+export EDITOR="emacsclient"
+
+alias qe="emacs -nw -Q"
+alias zile="emacs -nw -Q"
+alias lh="ls -lh --color=always"
+alias la="ls -lah --color=always"
+alias ls="ls --color=always"
+alias lesss="ls -S"
+source '/home/gbfjc/.local/bin/bashmarks.sh'
