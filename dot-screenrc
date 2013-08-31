@@ -1,0 +1,5 @@
+escape ``
+vbell off
+hardstatus string '%{= wk}%-Lw%{= KW}%50>%n%f* %t%{= dk}%+Lw%<'
+startup_message off
+defscrollback 200000 

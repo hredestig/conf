@@ -1,0 +1,42 @@
+(defun python-insert-quotes ()
+  (interactive)
+  (insert "\"\"")
+  (backward-char))
+
+(defun python-insert-single-quotes ()
+  (interactive)
+  (insert "\'\'")
+  (backward-char))
+
+(defun python-extras-run-line ()
+  "load the current line including the indentation"
+  (interactive)
+  (save-excursion
+	(beginning-of-line)
+	(set 'beg (point))
+	(end-of-line)
+	(set 'end (point))
+	(copy-region-as-kill beg end)
+	(set-buffer "*Python*")
+	(end-of-buffer)
+	(yank)
+	(end-of-buffer)
+	(comint-send-input))
+  (next-line 1))
+
+(defun python-extras-run-line-no-indent ()
+  "load the current line minus the indentation"
+  (interactive)
+  (save-excursion
+	(beginning-of-line)
+	(search-forward-regexp "[^ ]")
+	(set 'beg (- (point) 1))
+	(end-of-line)
+	(set 'end (point))
+	(copy-region-as-kill beg end)
+	(set-buffer "*Python*")
+	(end-of-buffer)
+	(yank)
+	(end-of-buffer)
+	(comint-send-input))
+  (next-line 1))
