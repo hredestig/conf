@@ -1,7 +1,9 @@
 (when (>= emacs-major-version 24)
   (require 'package)
   (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  (add-to-list 'package-archives '("melpa" . 
+				   "http://melpa.milkbox.net/packages/") t)
+  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
   )
 
 (when (or (string= system-name "hemulen") 
@@ -16,8 +18,15 @@
 )
 
 (when (string= system-name "ABEGENC2007")
+  (set-default-font
+   "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1")
+  (setq tramp-auto-save-directory "c:\\tmp")
+  (setq-default inferior-R-program-name "c:/opt/R/bin/R.exe")
+  (setq tramp-default-method "psftp")
   (setq prefix "C:/Users/gbfjc/.emacs.d/lisp/")
-)
+  (setq-default inferior-R-program-name "c:/opt/R/bin/R.exe")
+  ;; (setq url-proxy-services '(("http" . "proxy-bcs.bayerbbs.net:8080")))
+  )
 
 (add-to-list 'load-path prefix)
 

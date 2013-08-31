@@ -1,3 +1,6 @@
+;; outlook
+(require 'outlookedit)
+
 ;; yas
 (yas-global-mode 1)
 (yas/load-directory (concat prefix "yasnippets")) 
