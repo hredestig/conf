@@ -96,6 +96,7 @@
 ;; elscreen
 (load "elscreen" "ElScreen" t)
 (setq elscreen-display-tab nil)
+(elscreen-start)
 
 ;; dired
 (setq dired-recursive-deletes 'top)
