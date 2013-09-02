@@ -9,3 +9,5 @@
 (global-set-key "\M-k" 'next-line)
 (global-set-key "\M-l" 'forward-char)
 (global-set-key "\M-j" 'backward-char)
+(global-set-key [(find)] 'move-beginning-of-line)
+(global-set-key [(select)] 'move-end-of-line)
