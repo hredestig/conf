@@ -1,3 +1,7 @@
+;; iedit
+(require 'iedit)
+(global-set-key "\C-ct" 'iedit-mode)
+
 ;; outlook
 (require 'outlookedit)
 
