@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "from ${DISPLAY}"
+disp=`cat ~/.display`
+export DISPLAY=${disp}
+echo "to ${DISPLAY}"
