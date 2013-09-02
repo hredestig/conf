@@ -1,4 +1,5 @@
 # -*- sh -*-
+
 export TERM=rxvt
 # Source global definitions
 if [ -f /etc/bashrc ]; then
