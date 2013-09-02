@@ -1,4 +1,4 @@
-# .bashrc
+# -*- sh -*-
 export TERM=rxvt
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -8,17 +8,25 @@ fi
 alias ".."="cd .."
 #export PS1="\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n$ "
 
-if [ `hostname` -eq "gquest" ]; then
+if [ `hostname` = "gquest" ]; then
 	module load emacs
 	module load R-3.0.1
-	module load tablet
-	module load ghmm
-	module load bedtools
+	# module load tablet
+	# module load ghmm
+	# module load bedtools
+	module load bpipe
+	export PYTHONPATH=$PYTHONPATH:/home/gbfjc/lib/python2.6/site-packages:/home/gbfjc/workspace/personal/Tools
 	export PYTHONPATH=$PYTHONPATH:/home/gbfjc/lib/python2.6/site-packages
 	source '/home/gbfjc/.local/bin/bashmarks.sh'
+	if ! [ -n "$TMUX" ]; then
+		echo ${DISPLAY} > ~/.display
+	else
+		dev
+		prod
+	fi
 fi	
 
-if [ `hostname` -eq "hemulen" ]; then
+if [ `hostname` = "hemulen" ]; then
 	xmodmap -e "keycode 119 = Escape"
 	export LC_CTYPE="en_US.UTF-8" 
 	export XMODIFIERS=@im=ibus

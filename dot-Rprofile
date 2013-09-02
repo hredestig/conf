@@ -1,13 +1,37 @@
+# -*- R -*-
 library(utils)
 library(grDevices)
 #Sys.setenv("http_proxy"="http://proxy-bcs.bayerbbs.net:8080")
 
 options(width=90)
-.dp <- function(x) Sys.setenv("DISPLAY"=paste("localhost:", x, ".0", sep=""))
+.dp <- function(verbose=TRUE) {
+  old <- Sys.getenv("DISPLAY")
+  new <- scan("~/.display", what="character", quiet=TRUE)
+  Sys.setenv("DISPLAY"=new)
+  if(verbose)
+    message(sprintf('display was %s, is now %s', old, new))
+}
+.dp(FALSE)
 .bc <- function(x) {
   source('http://www.bioconductor.org/biocLite.R')
   biocLite(x)
 }
+
+.developing <- function(d, p=TRUE) {
+  if(!missing(d))
+    cat(d, file='~/.developing')
+  else {
+    d <- scan("~/.developing", what="character", quiet=TRUE)
+    if(p)
+      d <- as.package(file.path('~', 'workspace', 'personal', 'R', d, 'pkg'))
+    
+  }
+  d
+}
+
+.asp <- function(d)
+    as.package(file.path('~', 'workspace', 'personal', 'R', d, 'pkg'))
+
 
 options(repos="http://www.freestatistics.org/cran")
 options(pdfviewer="/usr/bin/xpdf")
@@ -15,36 +39,36 @@ options(digits=5)
 X11.options(type="nbcairo")
 
 if(interactive()) {
-  ## suppressMessages(require(BCS.Base))
+  suppressMessages(require(BCS.Base))
   suppressMessages(require(devtools))
-  suppressMessages(require(gridExtra))
-  suppressMessages(require(ggplot2))
-  suppressMessages(require(plyr))
+  ## suppressMessages(require(gridExtra))
+  ## suppressMessages(require(ggplot2))
+  ## suppressMessages(require(plyr))
 }
   
-.d <- 'BCS.rcsnp2'
-.d <- 'BCS.Phenotyping'
-.reinst <- function() {
-  system(paste('rm -rf ', .libPaths()[1], '/00LOCK-', .d, sep=''))
-  document(.d)
-  install(.d)
-  system(paste('rm -rf ', .libPaths()[1], '/00LOCK-', .d, sep=''))
+.reinst <- function(d) {
+  if(missing(d)) d <- .developing(p=FALSE)
+  pkg <-  as.package(file.path('~', 'workspace', 'personal', 'R', d, 'pkg'))
+  system(paste('rm -rf ', .libPaths()[1], '/00LOCK-', d, sep=''))
+  document(pkg)
+  install(pkg)
+  system(paste('rm -rf ', .libPaths()[1], '/00LOCK-', d, sep=''))
 }
 
-.install_reports <- function() {
-  dest <- file.path(.libPaths()[1], .d, 'reports')
-  src <- file.path(source('~/.Rpackages')[['value']][[.d]], 'inst', 'reports')
+.install_reports <- function(d) {
+  if(missing(d)) d <- .developing(p=FALSE)
+  dest <- file.path(.libPaths()[1], d, 'reports')
+  src <- file.path(source('~/.Rpackages')[['value']][[d]], 'inst', 'reports')
   vapply(list.files(src, pattern='.R[md]*$'),
          function(r) file.copy(file.path(src, r), dest, overwrite=TRUE),logical(1))
 }
        
-
-.install_configs <- function() {
-  dest <- file.path(.libPaths()[1], .d, 'configs')
-  src <- file.path(source('~/.Rpackages')[['value']][[.d]], 'inst', 'configs')
+.install_configs <- function(d) {
+  if(missing(d)) d <- .developing(p=FALSE)
+  dest <- file.path(.libPaths()[1], d, 'configs')
+  src <- file.path(source('~/.Rpackages')[['value']][[d]], 'inst', 'configs')
   vapply(list.files(src, pattern='.rda*$'),
          function(r) file.copy(file.path(src, r), dest, overwrite=TRUE),logical(1))
 }
 
-.delete_most_functions <- function() 
-  rm(list=Filter(function(x) is.function(get(x)), ls()), envir=.GlobalEnv, inherits=TRUE)
+.doc <- function() document(.developing())

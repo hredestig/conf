@@ -1,3 +1,20 @@
+(defun org-babel-new-hash-no-eval ()
+  "update hash without evaluation"
+  (interactive)
+  (save-excursion
+    (let ((new-hash (org-babel-sha1-hash))
+		    (res-p (org-babel-where-is-src-block-result))
+			  (name (car (cdr (nreverse (org-babel-get-src-block-info))))))
+	  (if res-p
+		  (progn
+			(goto-char res-p)
+			(delete-region res-p (point-at-eol)))
+		(re-search-forward "#\\+end_src")
+		(match-end 0)
+		(insert "\n\n"))
+	  (insert (concat "#+RESULTS[" new-hash "]: " name))))
+	(org-babel-hide-hash))
+
 (defun 2org-fill-caption ()
   "Fill the caption currently being edited."
   (interactive)
@@ -47,6 +64,12 @@
 ;; 	(replace-match "#+BEGIN_SRC R no-eval" nil nil)
 ;;       (re-search-forward 
     
+(defun 2org-run-setup ()
+  (interactive)
+  (save-excursion
+	(org-babel-goto-named-src-block "setup-R")
+	(org-babel-execute-src-block)))
+
 (defun 2org-src-field (type)
   "Inserts a simple source field"
   (interactive "MType? ")
@@ -185,7 +208,7 @@
 
 (defun 2org-previous-rblock () 
   (interactive)
-  (re-search-backward "\#\\+BEGIN_SRC R")
+  (re-search-backward "\#\\+BEGIN_SRC")
   (goto-char (match-beginning 0))
 )
 
@@ -193,7 +216,7 @@
   (interactive)
   (save-excursion 
     (next-line)
-    (re-search-forward "\#\\+BEGIN_SRC R")
+    (re-search-forward "\#\\+BEGIN_SRC")
     (setq n (match-beginning 0))
     )
   (if n
@@ -219,7 +242,8 @@
 (local-set-key "\C-cp" '2org-fill-caption)
 (local-set-key "\C-cf" '2org-rnw-field)
 (local-set-key "\C-cR" '2org-rsrc-field)
-(local-set-key "\C-cs" '2org-src-field)
+;; (local-set-key "\C-cs" '2org-src-field)
+(local-set-key "\C-cs" '2org-run-setup)
 ;; (local-set-key "\C-cg" '2org-rnw-fig)
 (local-set-key "\C-c\C-x&" '2org-reftex-view-crossref)
 (local-set-key "\C-cw" '2org-tex2rnw)

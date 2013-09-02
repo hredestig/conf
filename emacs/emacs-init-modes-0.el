@@ -1,8 +1,59 @@
 ;; outlook
 (require 'outlookedit)
 
+;; groovy
+(autoload 'groovy-mode "groovy-mode" "Major mode for editing Groovy code." t)
+(add-to-list 'auto-mode-alist '("\.groovy$" . groovy-mode))
+(add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
+(add-hook 'groovy-mode-hook
+          '(lambda ()
+             (require 'groovy-electric)
+             (groovy-electric-mode)))
+
+
+;; sh
+(defun sh-send-line-or-region (&optional step)
+  (interactive ())
+  (let ((proc (get-process "shell"))
+        pbuf min max command)
+    (unless proc
+      (let ((currbuff (current-buffer)))
+        (shell)
+        (switch-to-buffer currbuff)
+        (setq proc (get-process "shell"))
+        ))
+    (setq pbuff (process-buffer proc))
+    (if (use-region-p)
+        (setq min (region-beginning)
+              max (region-end))
+      (setq min (point-at-bol)
+            max (point-at-eol)))
+    (setq command (concat (buffer-substring min max) "\n"))
+    (with-current-buffer pbuff
+      (goto-char (process-mark proc))
+      (insert command)
+      (move-marker (process-mark proc) (point))
+      ) ;;pop-to-buffer does not work with save-current-buffer -- bug?
+    (process-send-string  proc command)
+    (display-buffer (process-buffer proc) t)
+    (when step 
+      (goto-char max)
+      (next-line))
+    ))
+
+(defun sh-send-line-or-region-and-step ()
+  (interactive)
+  (sh-send-line-or-region t))
+(defun sh-switch-to-process-buffer ()
+  (interactive)
+  (pop-to-buffer (process-buffer (get-process "shell")) t))
+
+
+
 ;; yas
-(yas-global-mode 1)
+(require 'yasnippet)
+(when (>= emacs-major-version 24)
+  (yas-global-mode 1))
 (yas/load-directory (concat prefix "yasnippets")) 
 
 ;; cua
@@ -57,9 +108,19 @@
 (setq comint-scroll-to-bottom-on-output t)
 (setq comint-move-point-for-output t)
 (setq comint-scroll-show-maximum-output t)
+(setq ess-smart-S-assign-key "<")
+(ess-toggle-underscore nil)
 (ess-toggle-underscore nil)
 (setq ess-use-tracebug t)
 (setq ess-roxy-str "#'")
+(add-hook 'ess-mode-hook (lambda ()
+			   (subword-mode t)
+			   (highlight-lines-matching-regexp ".\\{95\\}" "shadow")
+			   ))
+(defun R2 ()
+  (interactive)
+  (let ((inferior-R-program-name "/tools/bioinfo/app/R-2.14.2/bin/R"))
+	(R)))
 
 ;; org-mode
 (require 'org-install)
@@ -92,6 +153,18 @@
 			   (local-set-key "\C-cc" 'org-babel-new-hash-no-eval)
 			   (local-set-key "\C-c\C-z" 'ess-switch-to-end-of-ESS)
 			   (local-set-key "\C-c\C-g" 'org-set-tags)))
+
+
+;; markerpen
+(require 'markerpen)
+(global-set-key (kbd "C-c m") 'markerpen-mark-region)
+(global-set-key (kbd "C-c M") 'markerpen-clear-all-marks)
+
+;; jira
+(require 'org-jira) 
+
+;; adaptive-wrap
+(require 'adaptive-wrap)
 
 ;; elscreen
 (load "elscreen" "ElScreen" t)

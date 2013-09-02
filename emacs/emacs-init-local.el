@@ -5,8 +5,10 @@
   (add-to-list 'load-path "/home/henning/Dropbox/ess/lisp")
 )
 
-(when (string= system-name "gquest")
+(when (string= system-name "gquest.be.bayercropscience")
   (setq prefix "/home/gbfjc/.emacs.d/lisp/")
+  (add-to-list 'load-path (concat prefix "ess-svn-rep/lisp"))
+  (add-to-list 'load-path (concat prefix "org-mode/lisp"))
 )
 
 (when (string= system-name "ABEGENC2007")

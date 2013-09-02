@@ -4,3 +4,5 @@
 (load-file "~/.emacs.d/emacs-init-local.el")
 (load-file "~/.emacs.d/emacs-init-modes-0.el")
 
+(load "misc.el")
+
