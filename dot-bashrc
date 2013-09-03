@@ -1,4 +1,5 @@
 # -*- sh -*-
+
 export TERM=rxvt
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -18,12 +19,11 @@ if [ `hostname` = "gquest" ]; then
 	export PYTHONPATH=$PYTHONPATH:/home/gbfjc/lib/python2.6/site-packages:/home/gbfjc/workspace/personal/Tools
 	export PYTHONPATH=$PYTHONPATH:/home/gbfjc/lib/python2.6/site-packages
 	source '/home/gbfjc/.local/bin/bashmarks.sh'
-	if ! [ -n "$TMUX" ]; then
-		echo ${DISPLAY} > ~/.display
-	else
-		dev
-		prod
+	if [ -n "$TMUX" ]; then
+	    dev
+	    prod
 	fi
+
 fi	
 
 if [ `hostname` = "hemulen" ]; then
@@ -35,6 +35,10 @@ if [ `hostname` = "hemulen" ]; then
 # xmodmap -e "keycode 102 = Return"
 # xmodmap -e "keycode 100 = BackSpace"
 fi	
+
+if ! [ -n "$TMUX" ]; then
+    echo ${DISPLAY} > ~/.display
+fi
 
 export EDITOR="emacsclient"
 

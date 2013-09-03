@@ -11,7 +11,6 @@ unix:
 	cp dot-screenrc ~/.screenrc
 	cp dot-tmux.conf ~/.tmux.conf
 	cp bin/* ~/bin
-
 win: 
 	D='/cygdrive/c/Users/gbfjc/'
 	mkdir -p $(D)/.emacs.d/lisp

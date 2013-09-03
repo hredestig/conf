@@ -165,7 +165,7 @@
 (global-set-key (kbd "C-c M") 'markerpen-clear-all-marks)
 
 ;; jira
-(require 'org-jira) 
+;; (require 'org-jira) 
 
 ;; adaptive-wrap
 (require 'adaptive-wrap)
