@@ -52,7 +52,9 @@
   (interactive)
   (pop-to-buffer (process-buffer (get-process "shell")) t))
 
-
+;; confluence
+(require 'confluence)
+(setq confluence-url "http://confluence.be.bayercropscience/rpc/xmlrpc")
 
 ;; yas
 (require 'yasnippet)
@@ -143,6 +145,10 @@
 (setq org-directory "~/notes")
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (load "2org.el")
+;; (org-babel-do-load-languages
+;;  'org-babel-load-languages
+;;  '((dot . t)))
+
 (add-hook 'org-mode-hook (lambda ()
 			   (visual-line-mode t)
 			   (abbrev-mode)
@@ -154,10 +160,15 @@
 						   '(("\\\\ref.\\{0,1\\}{[^}]*}" .
 						      font-lock-keyword-face)))
 
+			   (local-set-key "\C-c(" '2org-insert-inline-math)
+			   (local-set-key "\C-cE" '2org-insert-equation)
 			   (local-set-key "\C-cc" 'org-babel-new-hash-no-eval)
 			   (local-set-key "\C-c\C-z" 'ess-switch-to-end-of-ESS)
 			   (local-set-key "\C-c\C-g" 'org-set-tags)))
 
+
+;; graphviz
+(load "graphviz-dot-mode.el")
 
 ;; markerpen
 (require 'markerpen)
