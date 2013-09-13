@@ -11,7 +11,7 @@ alias ".."="cd .."
 
 if [ `hostname` = "srv-biogrid-m-2" ]; then
 	module load emacs
-	module load R-3.0.1
+	module load R-3.0.1-rhel6
 	# module load tablet
 	# module load ghmm
 	# module load bedtools
