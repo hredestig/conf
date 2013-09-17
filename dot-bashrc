@@ -9,9 +9,9 @@ fi
 alias ".."="cd .."
 #export PS1="\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n$ "
 
-if [ `hostname` = "gquest" ]; then
+if [ `hostname` = "srv-biogrid-m-2" ]; then
 	module load emacs
-	module load R-3.0.1
+	module load R-3.0.1-rhel6
 	# module load tablet
 	# module load ghmm
 	# module load bedtools
