@@ -145,6 +145,16 @@
 (setq org-directory "~/notes")
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (load "2org.el")
+(defun org-babel-execute-if-no-file-collision ()
+  (let ((info (org-babel-get-src-block-info)))
+    (setq result-file (cdr (assoc :file (nth 2 info))))
+    (if (save-excursion
+	  (goto-char 0)
+	  (re-search-forward (concat ":file +" result-file) nil t)
+	  (re-search-forward (concat ":file +" result-file) nil t))
+	(message (concat result-file " defined in more than one source block"))
+      (org-babel-execute-maybe))))
+(add-hook 'org-ctrl-c-ctrl-c-hook 'org-babel-execute-if-no-file-collision)
 ;; (org-babel-do-load-languages
 ;;  'org-babel-load-languages
 ;;  '((dot . t)))
