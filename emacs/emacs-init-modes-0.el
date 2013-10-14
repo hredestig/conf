@@ -6,14 +6,14 @@
 (require 'outlookedit)
 
 ;; groovy
-(autoload 'groovy-mode "groovy-mode" "Major mode for editing Groovy code." t)
-(add-to-list 'auto-mode-alist '("\.groovy$" . groovy-mode))
-(add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
-(add-hook 'groovy-mode-hook
-          '(lambda ()
-             (require 'groovy-electric)
-             (groovy-electric-mode)))
-
+;; (autoload 'groovy-mode "groovy-mode" "Major mode for editing Groovy code." t)
+;; (add-to-list 'auto-mode-alist '("\.groovy$" . groovy-mode))
+;; (add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
+;; (add-hook 'groovy-mode-hook
+;;           '(lambda ()
+;;              (require 'groovy-electric)
+;;              (groovy-electric-mode)))
+(require 'groovy-mode)
 
 ;; sh
 (defun sh-send-line-or-region (&optional step)
@@ -133,8 +133,7 @@
 (setq org-todo-keywords
       '((sequence "TODO(t)" "STARTED(s!)" "WAIT(w@/!)" "|" "DONE(d!)" 
 				  "CANCELED(c@)"  "DELEGATED(e@)")))
-(setq org-export-html-xml-declaration
-	  '(("html" . "<!-- <xml version=\"1.0\" encoding=\"utf-8\"> -->")))
+(setq org-html-xml-declaration "<!-- <xml version=\"1.0\" encoding=\"utf-8\"> -->")
 (setq org-export-with-LaTeX-fragments t)
 (setq org-hide-block-startup t)
 (setq org-hide-leading-stars nil)
@@ -148,6 +147,17 @@
 ;; (org-babel-do-load-languages
 ;;  'org-babel-load-languages
 ;;  '((dot . t)))
+(defadvice org-babel-execute-maybe (around org-babel-stop-on-collision)
+  "stop execution of result file defined more than once"
+  (let ((info (org-babel-get-src-block-info)))
+    (setq result-file (cdr (assoc :file (nth 2 info))))
+    (if (save-excursion
+		  (goto-char 0)
+		  (re-search-forward (concat ":file +" result-file) nil t)
+		  (re-search-forward (concat ":file +" result-file) nil t))
+		(error (concat result-file " defined in more than one source block"))
+	  ad-do-it)))
+(ad-activate 'org-babel-execute-maybe)
 
 (add-hook 'org-mode-hook (lambda ()
 			   (visual-line-mode t)
