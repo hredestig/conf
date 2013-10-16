@@ -91,42 +91,6 @@
   )
 
 
-;; (defun 2org-rnw-fig (lab)
-;;   "Inserts a simple figure field"
-;;   (interactive "MLabel? ")
-;;   (let ((latexlab (concat "fig:" lab))
-;; 	)
-;;     (insert "#+caption: [" lab "] \n")
-;;     (insert "#+label: " latexlab "\n")
-;;     (insert "#+ATTR_LaTeX: width=\\textwidth\n")
-;;     (insert "#+source: " lab "\n")
-;;     (insert "#+begin_src R :file " lab ".pdf\n")
-;;     (setq here (point))
-;;     (insert "\n#+end_src\n")
-;;     (goto-char here))
-;;   )
-
-;; (defun 2org-rnw-fig (lab)
-;;   "Inserts a simple figure field"
-;;   (interactive "MLabel? ")
-;;   (setq basename (replace-regexp-in-string 
-;; 		  "\.org$" ""
-;; 		  (file-relative-name (buffer-file-name))))
-;;   (setq latexlab (concat "fig:" basename "-" lab))
-;;   (insert "#+CAPTION: \n")
-;;   (insert "#+LABEL: " latexlab "\n")
-;;   (insert "#+ATTR_LaTeX: width=\\textwidth\n")
-;;   (insert "[[./")
-;;   (insert basename "-" lab ".pdf")
-;;   (insert "]]\n")
-;;   (insert "#+BEGIN_SRC R\n")
-;;   (insert "::" lab ", include=false, results=hide, echo=false, fig=true\n\n")
-;;   (setq here (point))
-;;   (insert "\n\n@\n")
-;;   (insert "#+END_SRC\n")
-;;   (goto-char here)
-;;   )
-
 (defun 2org-rnw-field (lab)
   "Inserts a simple figure field"
   (interactive "MLabel? ")
@@ -206,23 +170,6 @@
 )
 
 
-(defun 2org-previous-rblock () 
-  (interactive)
-  (re-search-backward "\#\\+BEGIN_SRC")
-  (goto-char (match-beginning 0))
-)
-
-(defun 2org-next-rblock () 
-  (interactive)
-  (save-excursion 
-    (next-line)
-    (re-search-forward "\#\\+BEGIN_SRC")
-    (setq n (match-beginning 0))
-    )
-  (if n
-      (goto-char n))
-)
-
 (defun 2org-surround (what)
   (interactive "MWhat? ")
   (if (region-active-p)
@@ -249,5 +196,3 @@
 (local-set-key "\C-cw" '2org-tex2rnw)
 (local-set-key "\C-c(" '2org-insert-inline-math)
 (local-set-key "\C-cE" '2org-insert-equation)
-(local-set-key "\C-cP" '2org-previous-rblock)
-(local-set-key "\C-cN" '2org-next-rblock)

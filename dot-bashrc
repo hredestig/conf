@@ -16,14 +16,13 @@ if [ `hostname` = "srv-biogrid-m-2" ]; then
 	# module load ghmm
 	# module load bedtools
 	module load bpipe
-	export PYTHONPATH=$PYTHONPATH:/home/gbfjc/lib/python2.6/site-packages:/home/gbfjc/workspace/personal/Tools
-	export PYTHONPATH=$PYTHONPATH:/home/gbfjc/lib/python2.6/site-packages
 	source '/home/gbfjc/.local/bin/bashmarks.sh'
 	if [ -n "$TMUX" ]; then
 	    dev
 	    prod
 	fi
-
+	export PYTHONPATH=/home/gbfjc/lib/python2.6/site-packages:/home/gbfjc/workspace/personal/Tools:$PYTHONPATH
+	export PYTHONPATH=/home/gbfjc/lib/python2.6/site-packages:$PYTHONPATH
 fi	
 
 if [ `hostname` = "hemulen" ]; then

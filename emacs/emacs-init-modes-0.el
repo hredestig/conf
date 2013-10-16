@@ -99,8 +99,6 @@
 (load "python-extras.el")
 (add-hook 
  'python-mode-hook (lambda ()
-		     (local-set-key "\C-c\"" 'python-insert-quotes)
-		     (local-set-key "\C-c\'" 'python-insert-single-quotes)
 		     (local-set-key "\C-c\C-e" 'python-extras-run-line)
 		     (local-set-key "\C-c\C-g" 'python-extras-run-line-no-indent)
 		     ))
@@ -151,12 +149,13 @@
   "stop execution of result file defined more than once"
   (let ((info (org-babel-get-src-block-info)))
     (setq result-file (cdr (assoc :file (nth 2 info))))
-    (if (save-excursion
-		  (goto-char 0)
-		  (re-search-forward (concat ":file +" result-file) nil t)
-		  (re-search-forward (concat ":file +" result-file) nil t))
-		(error (concat result-file " defined in more than one source block"))
-	  ad-do-it)))
+	(if result-file 
+		(if (save-excursion
+			  (goto-char 0)
+			  (re-search-forward (concat ":file +" result-file) nil t)
+			  (re-search-forward (concat ":file +" result-file) nil t))
+			(error (concat result-file " defined in more than one source block"))))
+	  ad-do-it))
 (ad-activate 'org-babel-execute-maybe)
 
 (add-hook 'org-mode-hook (lambda ()
