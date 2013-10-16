@@ -27,6 +27,7 @@ fi
 
 if [ `hostname` = "hemulen" ]; then
 	xmodmap -e "keycode 119 = Escape"
+	xmodmap -e "keycode 115 = BackSpace"
 	export LC_CTYPE="en_US.UTF-8" 
 	export XMODIFIERS=@im=ibus
 	export GTK_IM_MODULE=ibus
