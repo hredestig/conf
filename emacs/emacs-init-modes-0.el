@@ -61,6 +61,7 @@
 (when (>= emacs-major-version 24)
   (yas-global-mode 1))
 (yas/load-directory (concat prefix "yasnippets")) 
+(global-set-key "\C-cg" 'yas/expand)
 
 ;; cua
 (setq cua-enable-cua-keys nil)
