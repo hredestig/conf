@@ -163,8 +163,8 @@
 	(if result-file 
 		(if (save-excursion
 			  (goto-char 0)
-			  (re-search-forward (concat ":file +" result-file) nil t)
-			  (re-search-forward (concat ":file +" result-file) nil t))
+			  (re-search-forward (concat ":file +" result-file "[\n ]") nil t)
+			  (re-search-forward (concat ":file +" result-file "[\n ]") nil t))
 			(error (concat result-file " defined in more than one source block"))))
 	  ad-do-it))
 (ad-activate 'org-babel-execute-maybe)
