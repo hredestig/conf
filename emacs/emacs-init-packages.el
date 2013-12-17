@@ -7,6 +7,8 @@
 	(package-refresh-contents))
   (setq package-load-list '(all))
   (package-initialize)
+  (unless (package-installed-p 'org-jira)
+	(package-install 'org-jira))
   (unless (package-installed-p 'graphviz-dot-mode)
 	(package-install 'graphviz-dot-mode))
   (unless (package-installed-p 'confluence)

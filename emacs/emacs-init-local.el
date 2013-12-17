@@ -5,9 +5,12 @@
   (add-to-list 'load-path "/home/henning/Dropbox/ess/lisp")
 )
 
-(when (string= system-name "srv-biogrid-m-2.be.bayercropscience")
+(when (string= system-name "gquest.be.bayercropscience")
   (setq prefix "/home/gbfjc/.emacs.d/lisp/")
   (add-to-list 'load-path (concat prefix "ess-svn-rep/lisp"))
+  (setq load-path
+		(append '("/home/gbfjc/.emacs.d/lisp/polymode" 
+				  "/home/gbfjc/.emacs.d/lisp/polymode/modes") load-path))
   ;; (add-to-list 'load-path (concat prefix "iedit"))
   ;; (add-to-list 'load-path (concat prefix "org-mode/lisp")) 
 )

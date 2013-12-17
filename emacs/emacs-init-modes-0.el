@@ -127,8 +127,12 @@
   (let ((inferior-R-program-name "/tools/bioinfo/app/R-2.14.2/bin/R"))
 	(R)))
 
+(require 'poly-R)
+(require 'poly-markdown)
+
 ;; org-mode
 (require 'org-install)
+(setq org-src-fontify-natively t)
 (setq org-todo-keywords
       '((sequence "TODO(t)" "STARTED(s!)" "WAIT(w@/!)" "|" "DONE(d!)" 
 				  "CANCELED(c@)"  "DELEGATED(e@)")))
@@ -196,7 +200,9 @@
 (global-set-key (kbd "C-c M") 'markerpen-clear-all-marks)
 
 ;; jira
-;; (require 'org-jira) 
+(require 'org-jira) 
+(setq jiralib-url "http://vm-alm-prod-1.be.bayercropscience:8080")
+(setq jiralib-user-login-name "gbfjc")
 
 ;; adaptive-wrap
 (require 'adaptive-wrap)
