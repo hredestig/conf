@@ -3,6 +3,8 @@ library(utils)
 library(grDevices)
 #Sys.setenv("http_proxy"="http://proxy-bcs.bayerbbs.net:8080")
 
+## avoid java intercepting siginterrupt
+options(java.parameters= "-Xrs")
 options(width=90)
 .dp <- function(verbose=TRUE) {
   old <- Sys.getenv("DISPLAY")

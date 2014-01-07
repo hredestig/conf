@@ -265,4 +265,5 @@
 (ispell-change-dictionary "english")
 
 ;; colors
-(load "cd-colors.el")
+;; (require 'ample-zen-theme)
+;; (load "cd-colors.el")
