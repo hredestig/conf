@@ -7,11 +7,13 @@ library(grDevices)
 options(java.parameters= "-Xrs")
 options(width=90)
 .dp <- function(verbose=TRUE) {
-  old <- Sys.getenv("DISPLAY")
-  new <- scan("~/.display", what="character", quiet=TRUE)
-  Sys.setenv("DISPLAY"=new)
-  if(verbose)
-    message(sprintf('display was %s, is now %s', old, new))
+  tryCatch({
+    old <- Sys.getenv("DISPLAY")
+    new <- scan("~/.display", what="character", quiet=TRUE)
+    Sys.setenv("DISPLAY"=new)
+    if(verbose)
+      cat(sprintf('display was %s, is now %s', old, new), file=stderr())
+  }, error=function(e) {})
 }
 .dp(FALSE)
 .bc <- function(x) {
@@ -31,21 +33,14 @@ options(width=90)
   d
 }
 
-.asp <- function(d)
-    as.package(file.path('~', 'workspace', 'personal', 'R', d, 'pkg'))
-
-
 options(repos="http://www.freestatistics.org/cran")
 options(pdfviewer="/usr/bin/xpdf")
 options(digits=5)
 X11.options(type="nbcairo")
 
 if(interactive()) {
-  suppressMessages(require(BCS.Base))
   suppressMessages(require(devtools))
-  ## suppressMessages(require(gridExtra))
-  ## suppressMessages(require(ggplot2))
-  ## suppressMessages(require(plyr))
+  dev <- dev_mode
 }
   
 .reinst <- function(d) {

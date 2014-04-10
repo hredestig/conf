@@ -6,13 +6,6 @@
 (require 'outlookedit)
 
 ;; groovy
-;; (autoload 'groovy-mode "groovy-mode" "Major mode for editing Groovy code." t)
-;; (add-to-list 'auto-mode-alist '("\.groovy$" . groovy-mode))
-;; (add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
-;; (add-hook 'groovy-mode-hook
-;;           '(lambda ()
-;;              (require 'groovy-electric)
-;;              (groovy-electric-mode)))
 (require 'groovy-mode)
 
 ;; sh
@@ -76,6 +69,14 @@
 	  (cons '("\\.Rmd" . markdown-mode) auto-mode-alist))
 (setq auto-mode-alist
 	  (cons '("\\.md" . markdown-mode) auto-mode-alist))
+
+;; maple / darwin
+(require 'maplev)
+(setq auto-mode-alist
+	  (cons '("\\.drw" . maplev-mode) auto-mode-alist))
+
+;; magit
+(global-set-key "\C-cj" 'magit-status)
 
 ;; auctex
 (setq TeX-auto-save t)
@@ -144,8 +145,6 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
-(setq org-directory "~/notes")
-(setq org-default-notes-file (concat org-directory "/notes.org"))
 (load "2org.el")
 (defun org-babel-execute-if-no-file-collision ()
   (let ((info (org-babel-get-src-block-info)))
@@ -157,9 +156,12 @@
 	(message (concat result-file " defined in more than one source block"))
       (org-babel-execute-maybe))))
 (add-hook 'org-ctrl-c-ctrl-c-hook 'org-babel-execute-if-no-file-collision)
-;; (org-babel-do-load-languages
-;;  'org-babel-load-languages
-;;  '((dot . t)))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((dot . t))
+ '((emacs-lisp . nil))
+ '((R . t))
+ '((python . t)))
 (defadvice org-babel-execute-maybe (around org-babel-stop-on-collision)
   "stop execution of result file defined more than once"
   (let ((info (org-babel-get-src-block-info)))
@@ -266,4 +268,4 @@
 
 ;; colors
 ;; (require 'ample-zen-theme)
-;; (load "cd-colors.el")
+ 
