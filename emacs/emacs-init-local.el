@@ -1,19 +1,5 @@
-(when (or (string= system-name "hemulen") 
-		  (string= system-name "knyttet"))
-  (set-default-font "DejaVu Sans Mono 10")
-  (setq prefix "/home/henning/.emacs.d/lisp/")
-  (add-to-list 'load-path "/home/henning/Dropbox/ess/lisp")
-)
-
-(when (string= system-name "gquest.be.bayercropscience")
-  (setq prefix "/home/gbfjc/.emacs.d/lisp/")
-  (add-to-list 'load-path (concat prefix "ess-svn-rep/lisp"))
-  (setq load-path
-		(append '("/home/gbfjc/.emacs.d/lisp/polymode" 
-				  "/home/gbfjc/.emacs.d/lisp/polymode/modes") load-path))
-  ;; (add-to-list 'load-path (concat prefix "iedit"))
-  ;; (add-to-list 'load-path (concat prefix "org-mode/lisp")) 
-)
+(setq prefix "/home/gbfjc/.emacs.d/lisp/")
+(add-to-list 'load-path (concat prefix "ess-svn-rep/lisp"))
 
 (when (string= system-name "ABEGENC2007")
   (set-default-font

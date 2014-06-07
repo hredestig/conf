@@ -1,13 +1,3 @@
-;; iedit
-(require 'iedit)
-(global-set-key "\C-ct" 'iedit-mode)
-
-;; outlook
-(require 'outlookedit)
-
-;; groovy
-(require 'groovy-mode)
-
 ;; sh
 (defun sh-send-line-or-region (&optional step)
   (interactive ())
@@ -48,35 +38,36 @@
 ;; confluence
 (require 'confluence)
 (setq confluence-url "http://confluence.be.bayercropscience/rpc/xmlrpc")
+(global-set-key "\C-cs" 'confluence-search)
+(add-hook 
+ 'confluence-mode-hook (lambda ()
+		     (visual-line-mode t)
+		     ))
+(add-hook 
+ 'confluence-search-mode-hook (lambda ()
+		     (local-set-key "\r" 'confluence-get-page-at-point)
+		     ))
+(add-hook 
+ 'confluence-xml-mode-hook (lambda ()
+		     (local-set-key "\C-c\C-t" 'confluence-toggle-page-content-type)
+		     ))
 
 ;; yas
 (require 'yasnippet)
-(when (>= emacs-major-version 24)
-  (yas-global-mode 1))
-(yas/load-directory (concat prefix "yasnippets")) 
+(yas-global-mode 1)
 (global-set-key "\C-cg" 'yas/expand)
-
+(setq yas-snippet-dirs (append yas-snippet-dirs
+                               '("~/.emacs.d/lisp/yasnippets")))
 ;; cua
 (setq cua-enable-cua-keys nil)
 (setq cua-toggle-set-mark nil)
 (cua-mode)
 (global-set-key "\C-ci" 'cua-set-rectangle-mark)
 
-;; markdown
-(autoload 'markdown-mode "markdown-mode.el"
-  "Major mode for editing Markdown files" t)
-(setq auto-mode-alist
-	  (cons '("\\.Rmd" . markdown-mode) auto-mode-alist))
-(setq auto-mode-alist
-	  (cons '("\\.md" . markdown-mode) auto-mode-alist))
-
 ;; maple / darwin
 (require 'maplev)
 (setq auto-mode-alist
 	  (cons '("\\.drw" . maplev-mode) auto-mode-alist))
-
-;; magit
-(global-set-key "\C-cj" 'magit-status)
 
 ;; auctex
 (setq TeX-auto-save t)
@@ -127,9 +118,6 @@
   (interactive)
   (let ((inferior-R-program-name "/tools/bioinfo/app/R-2.14.2/bin/R"))
 	(R)))
-
-(require 'poly-R)
-(require 'poly-markdown)
 
 ;; org-mode
 (require 'org-install)

@@ -18,15 +18,6 @@
 ;; 			nil
 ;; 		  t)))))
 
-(defun dp () 
-  (interactive) 
-  (let ((disp (with-temp-buffer
-			   (insert-file-contents "~/.display")
-			   (buffer-string))))
-	(setq prevdisp (getenv "DISPLAY"))
-	(setenv "DISPLAY" (replace-regexp-in-string "\n" "" disp)))
-	(message (concat "was \"" prevdisp "\" is now \"" (getenv "DISPLAY") "\"")))
-
 (defun ess-fix-miscellaneous-henning (&optional from verbose)
   "Fix Miscellaneous S/R `ill-formation's from current \\[point].
  Particularly use \"<-\"and put spaces around operators."
