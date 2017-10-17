@@ -1,3 +1,7 @@
+;; magit
+(require 'magit)
+(global-set-key "\C-cj" 'magit-status)
+
 ;; iedit
 (require 'iedit)
 (global-set-key "\C-ct" 'iedit-mode)

@@ -60,7 +60,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:background nil :foreground "brightwhite"))))
+ '(default ((t (:background nil :foreground "white"))))
  '(bm-fringe-face ((t (:foreground "#ff8e43"))))
  '(cd-fixme-face ((t (:background "#670000" :foreground "#ffffff" :bold t :box (:line-width 1 :style released-button)))) t)
  '(cd-org-cancelled-kwd-face ((t (:background "#777700" :foreground "white" :box (:line-width 1 :style released-button)))) t)
